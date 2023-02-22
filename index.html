@@ -13,18 +13,18 @@
     <header>
         <h1>TravelTip Starter</h1>
         <form onsubmit="onLocationEntered(event)">
-            <input type="text" placeholder="Enter Location">
+            <input id="address" type="text" placeholder="Enter Location">
             <button>GO</button>
         </form>
-        <button onclick="onGetUserPos()" class="btn-user-pos">Get User Position</button>
+        <button onclick="onGetUserPos()" class="btn-user-pos">My Location</button>
     </header>
 
     <section class="location-control">
         <div>
-            <p>You are at: <span class="user-pos"></span></p>
+            <!-- <p>You are at: <span class="user-pos"></span></p> -->
             <p>Current location: <span class="curr-pos"></span></p>
         </div>
-        <button onclick="onCopyLocation()">Copy Location</button>
+        <button onclick="onAddLocation()">Add Location</button>
     </section>
 
     <section class="info-container">
@@ -40,7 +40,6 @@
         <button onclick="onGetLocs()" class="btn-get-locs">Get Locations</button>
         <button onclick="onPanTo()" class="btn-pan">Pan Map to Tokyo</button>
     </section>
-
 
 
 

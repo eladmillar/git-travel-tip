@@ -1,13 +1,18 @@
 export const mapService = {
     initMap,
     addMarker,
-    panTo
+    panTo,
+    getLoc
 }
 
 
 // Var that is used throughout this Module (not global)
 
 var gMap
+let currMarker = []
+let markers = []
+
+
 
 function initMap(lat = 32.0749831, lng = 34.9120554) {
     console.log('InitMap')
@@ -21,6 +26,8 @@ function initMap(lat = 32.0749831, lng = 34.9120554) {
             })
             console.log('Map!', gMap)
         })
+        .then(checkEventListener)
+
 }
 
 function addMarker(loc) {
@@ -29,12 +36,50 @@ function addMarker(loc) {
         map: gMap,
         title: 'Hello World!'
     })
+    console.log('loc', loc)
+
+    setMapOnAll(null)
+    currMarker = []
+    currMarker.push(marker)
     return marker
+}
+
+function getLoc() {
+    console.log('currMarker', currMarker[0].title);
+    const lat = currMarker[0].position.toJSON().lat
+    const lng = currMarker[0].position.toJSON().lng
+    const name = prompt('name?')
+    const timeElapsed = Date.now();
+    const today = new Date(timeElapsed);
+
+    const place = {
+        name,
+        lat,
+        lng,
+        createdAt: today.toLocaleDateString()
+    }
+    return place
+}
+
+
+function setMapOnAll(map) {
+    for (let i = 0; i < currMarker.length; i++) {
+        currMarker[i].setMap(map);
+    }
 }
 
 function panTo(lat, lng) {
     var laLatLng = new google.maps.LatLng(lat, lng)
     gMap.panTo(laLatLng)
+}
+
+function checkEventListener() {
+    gMap.addListener("click", (mapsMouseEvent) => {
+        console.log('mapsMouseEvent', mapsMouseEvent)
+        // console.log('mapsMouseEvent.latLng.toJSON()', mapsMouseEvent.latLng.toJSON())
+        addMarker(mapsMouseEvent.latLng.toJSON())
+        return Promise.resolve()
+    });
 }
 
 
