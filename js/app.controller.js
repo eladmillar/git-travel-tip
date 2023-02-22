@@ -1,5 +1,6 @@
 import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
+import { utilService } from './services/util.service.js'
 
 window.onload = onInit
 window.onAddMarker = onAddMarker
@@ -16,6 +17,9 @@ function onInit() {
         .then(() => {
             console.log('Map is ready')
         })
+        .then(() => {
+            onGetLocs()
+        })
         .catch(() => console.log('Error: cannot init map'))
 }
 
@@ -28,15 +32,16 @@ function getPosition() {
 }
 
 function onAddMarker() {
-    console.log('Adding a marker')
+    // console.log('Adding a marker')
     mapService.addMarker({ lat: 32.0749831, lng: 34.9120554 })
 }
 
 function onGetLocs() {
     locService.getLocs()
         .then(locs => {
-            console.log('Locations:', locs)
+            // console.log('Locations:', locs)
             renderLocations(locs)
+            mapService.addMarkers(locs)
             // document.querySelector('.locs').innerText = JSON.stringify(locs, null, 2)
         })
 }
@@ -44,7 +49,7 @@ function onGetLocs() {
 function onGetUserPos() {
     getPosition()
         .then(pos => {
-            console.log('User position is:', pos.coords)
+            // console.log('User position is:', pos.coords)
             onPanTo(pos.coords.latitude, pos.coords.longitude)
             // document.querySelector('.user-pos').innerText =
             //     `Latitude: ${pos.coords.latitude} - Longitude: ${pos.coords.longitude}`
@@ -54,34 +59,48 @@ function onGetUserPos() {
         })
 }
 function onPanTo(lat = 35.6895, lng = 139.6917) {
-    console.log('Panning the Map')
+    // console.log('Panning the Map')
     mapService.panTo(lat, lng)
 }
 
 function onLocationEntered(ev) {
     ev.preventDefault()
     console.log('hi');
-    const address = document.getElementById("address").value;
-    if (!address || address.length < 3) {
-        console.log("The address string is too short. Enter at least three symbols");
-        return;
-    }
+    let geocoder = mapService.getGeocoder()
+    var address = document.getElementById('address').value;
+    geocoder.geocode({ 'address': address }, function (results, status) {
+        if (status == 'OK') {
+            const lat = results[0].geometry.location.toJSON().lat
+            const lng = results[0].geometry.location.toJSON().lng
+            console.log('lat', lat)
+            console.log('lng', lng)
+            onPanTo(lat, lng)
+            const time = utilService.getTime()
+            const place = {
+                name: address,
+                lat,
+                lng,
+                createdAt: time
+            }
+            console.log('place', place)
+            onAddLocation(place)
+            // var marker = new google.maps.Marker({
+            //     map: map,
+            //     position: results[0].geometry.location
+            // });
+        } else {
+            alert('Geocode was not successful for the following reason: ' + status);
+        }
+    });
 
-    const geocodingUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${'AIzaSyC8NBMO_Jv4ROg5guCXiStnnQ1QoNhLcdE'}`;
-
-    // call Geocoding API - https://www.geoapify.com/geocoding-api/
-    fetch(geocodingUrl).then(result => result.json())
-        .then(featureCollection => {
-            console.log(featureCollection);
-        });
 }
 
-function onAddLocation() {
-    locService.addLocation()
+function onAddLocation(loc) {
+    locService.addLocation(loc).then(onGetLocs)
 }
 
 function renderLocations(locs) {
-    console.log('locs', locs)
+    // console.log('locs', locs)
     let strHTML = ''
     locs.map(location => {
         strHTML += `<article class="card">
@@ -94,12 +113,12 @@ function renderLocations(locs) {
 }
 
 function onGoToLocation(lat, lng) {
-    console.log('lat', lat)
-    console.log('lng', lng)
+    // console.log('lat', lat)
+    // console.log('lng', lng)
     onPanTo(lat, lng)
 }
 
 function onDeleteLocation(id) {
-    console.log('id', id)
-    locService.deleteLocation(id).then(onGetLocs)
+    // console.log('id', id)
+    locService.deleteLocation(id).then(mapService.removeMarker).then(onGetLocs)
 }

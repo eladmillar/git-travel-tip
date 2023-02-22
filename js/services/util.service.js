@@ -5,6 +5,7 @@ export const utilService = {
     randomPastTime,
     randomPetName,
     randomPetType,
+    getTime
 }
 
 const gPetNames = ['Bob', 'Charls', 'Chip']
@@ -50,4 +51,10 @@ function randomPastTime() {
     
     const pastTime = getRandomIntInclusive(HOUR, WEEK)
     return Date.now() - pastTime
+}
+
+function getTime() {
+    const timeElapsed = Date.now();
+    const today = new Date(timeElapsed);
+    return today.toLocaleDateString()
 }

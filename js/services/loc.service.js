@@ -25,12 +25,20 @@ function getLocs() {
         .then(locs)
 }
 
-function addLocation() {
-    const place = mapService.getLoc()
-    console.log('place', place)
-    // locs.push(place)
-    console.log('locs', locs)
-    storageService.post(LOCS_KEY, place)
+function addLocation(loc) {
+    console.log('loc', loc)
+    if (loc) {
+        const place = loc
+        console.log('place', place)
+        console.log('locs', locs)
+        return storageService.post(LOCS_KEY, place)
+    }
+    else {
+        const place = mapService.getLoc()
+        console.log('place', place)
+        console.log('locs', locs)
+        return storageService.post(LOCS_KEY, place)
+    }
 }
 
 function deleteLocation(id) {
@@ -42,7 +50,7 @@ function _createLocs() {
     if (!locs || !locs.length) {
         _createDemoLocs()
     }
-    console.log('locs', locs)
+    // console.log('locs', locs)
     return locs
 }
 

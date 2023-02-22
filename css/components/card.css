@@ -2,4 +2,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: var(--clrcard);
+    margin-bottom: 1em;
 }
